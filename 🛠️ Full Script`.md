@@ -1,7 +1,7 @@
 🧩 Multi-Stack Full Script
 
-🐍 Python Script loaded into Visual Studio Code with Azure VM or Azure Data Factory 
-(both implemented and tested, automated weekly ADF connection to be retained eventually after testing period)  :
+🐍 Python Script loaded into Visual Studio Code + local Azure VM  &  Azure Data Factory for scheduling.
+(both implemented and tested, automated Azure Data Factory connection to be retained eventually after testing period for best enterprise asset management)  :
 
 ```Python
 import requests
