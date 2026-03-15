@@ -7,8 +7,7 @@ LIST @stage_path;
 ```
 
 ```JavaScript
-if (file_name.startsWith('GET_VENDOR_SALES_REPORT')) {    file_list.push(file_name);}Show more lines
-What this shows
+if (file_name.startsWith('GET_VENDOR_SALES_REPORT')) {    file_list.push(file_name);}
 ```
 
 * Dynamic file detection
