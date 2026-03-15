@@ -11,7 +11,7 @@ FROM ACCOUNT_USAGE.TASK_HISTORY
 WHERE STATE != 'SUCCEEDED';
 ```
 This query runs daily and retrieves all errors attributed to Snowflake tasks 
-and uploaded into a Snwoflake Monitoring Dashbaord into our Power BI CRM App.
+and uploaded into a Snowflake Monitoring Dashbaord into our Power BI CRM App.
 
 Conclusion:
 * Monitoring built into the platform
