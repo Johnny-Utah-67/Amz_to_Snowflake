@@ -1,11 +1,11 @@
-External API
+1. External API
      ↓
-Python Automation (Cloud VM / Data Factory)
+2. Python Automation (Cloud VM / Data Factory)
      ↓
-Cloud Object Storage (Raw Files)
+3. Cloud Object Storage (Raw Files)
      ↓
-Cloud Data Warehouse (Tasks + Procedures)
+4. Cloud Data Warehouse (Tasks + Procedures)
      ↓
-Standardized Analytics Tables
+5. Standardized Analytics Tables
      ↓
-BI Monitoring & Reporting
+6. BI Monitoring & Reporting
