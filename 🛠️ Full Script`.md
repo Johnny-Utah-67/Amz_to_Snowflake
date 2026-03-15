@@ -176,8 +176,10 @@ if __name__ == "__main__":
         download_report(document_id, token)
     except Exception as e:
         print(f"❌ An error occurred: {e}")
+```
 
-
+Login With Amazon (LWA) credentials stored in the .env file
+```Python
 Amazon credentials in .env :
 # Amazon LWA Credentials
 LWA_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
