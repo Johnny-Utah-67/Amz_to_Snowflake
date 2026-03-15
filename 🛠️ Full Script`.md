@@ -185,10 +185,11 @@ LWA_CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 LWA_REFRESH_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-Snowflake task and procedure code :
+❄️ Snowflake task and procedure code :
 
 Create table first :
-CREATE OR REPLACE TABLE NN_EXPL.CA_TRADE.F_CA_AMZ_NES_COFF_ACC_DAILY_SALES_MFG_DISSAS (
+```SQL
+CREATE OR REPLACE TABLE NN_EXPL.xxxxxx.x_xx_xxx_xxx_xxxx_xxx_xxxxxxx (
   Source_File            STRING,
   Calendar_Date          DATE,
   Amazon_Asin            STRING,
@@ -199,20 +200,24 @@ CREATE OR REPLACE TABLE NN_EXPL.CA_TRADE.F_CA_AMZ_NES_COFF_ACC_DAILY_SALES_MFG_D
   Shipped_Revenue_CAD    FLOAT,
   Ordered_Revenue_CAD    FLOAT
   )
+```
 
 file format creation for parquet :
-   CREATE OR REPLACE FILE FORMAT NN_EXPL.CA_TRADE.FF_PARQUET
-  TYPE = PARQUET
+```SQL
+CREATE OR REPLACE FILE FORMAT NN_EXPL.xx_xxxxx.xxxxxx.x_xx
+TYPE = PARQUET
+```
 
 Procedure to load weekly new files (SQL + Javascript for loading logic) :
-CREATE OR REPLACE PROCEDURE NN_EXPL.CA_TRADE.UPDATE_F_CA_AMZ_NES_COFF_ACC_DAILY_SALES_MFG()
+```Javascript
+CREATE OR REPLACE PROCEDURE NN_XXXX.CA_XXXXX.UPDATE_X_XX_AMZ_NES_XXXX_XXX_XXXX_XXXX_MFG()
 RETURNS STRING
 LANGUAGE JAVASCRIPT
 EXECUTE AS CALLER
 AS
 $$
     // 1. List files in the stage
-    var stage_path = '@NN_EXPL.CA_TRADE.STG_CA_TRADE/AMAZON_SP_API/GET_VENDOR_SALES_REPORT/RETAIL_MANUFACTURING/';
+    var stage_path = '@NN_EXPL.CA_XXXXXXXX.STG_CA_XXXXXX/XXXXXXXXX_SP_API/GET_VENDOR_SALES_REPORT/XXXXXXXX_MANUFACTURING/';
     var file_list_sql = `LIST ${stage_path}`;
     var file_list = [];
     var stmt = snowflake.createStatement({sqlText: file_list_sql});
@@ -227,7 +232,7 @@ $$
 
     // 2. Get already loaded files from the table
     var loaded_files = [];
-    var loaded_sql = `SELECT DISTINCT Source_File FROM NN_EXPL.CA_TRADE.F_CA_AMZ_NES_COFF_ACC_DAILY_SALES_MFG_DISSAS`;
+    var loaded_sql = `SELECT DISTINCT Source_File FROM NN_XXXXX.CA_XXXXX.XF_XX_AMZ_NES_XXXX_XXX_DAILY_XXXXX_MFG`;
     var stmt2 = snowflake.createStatement({sqlText: loaded_sql});
     var rs2 = stmt2.execute();
     while (rs2.next()) {
@@ -245,7 +250,7 @@ $$
     for (var i = 0; i < new_files.length; i++) {
         var file = new_files[i];
         var insert_sql = `
-       COPY INTO NN_EXPL.CA_TRADE.F_CA_AMZ_NES_COFF_ACC_DAILY_SALES_MFG_DISSAS
+       COPY INTO NN_XXXXX.CA_XXXXX.XF_XX_AMZ_NES_XXXX_XXX_DAILY_XXXXX_MFG`
         FROM (
             SELECT
                 SPLIT_PART(METADATA$FILENAME, '/', -1) AS SOURCE_FILE,
@@ -257,7 +262,7 @@ $$
                 $1:"SHIPPEDCOGS_AMOUNTCAD"::FLOAT AS SHIPPED_COGS_CAD,
                 $1:"SHIPPEDREVENUE_AMOUNTCAD"::FLOAT AS SHIPPED_REVENUE_CAD,
                 $1:"ORDEREDREVENUE_AMOUNTCAD"::FLOAT AS ORDERED_REVENUE_CAD
-            FROM    @NN_EXPL.CA_TRADE.STG_CA_TRADE/AMAZON_SP_API/GET_VENDOR_SALES_REPORT/RETAIL_MANUFACTURING/${file}) FILE_FORMAT = (FORMAT_NAME = 'NN_EXPL.CA_TRADE.FF_PARQUET')
+            FROM    @NN_EXPL.CA_XXXXXXX.STG_CA_XXXXX/XXXXXXXX_XX_XXX/XXX_XXXXXXXXX_XXXXX_XXXXXXX/${file}) FILE_FORMAT = (FORMAT_NAME = 'NN_EXPL.CA_TRADE.FF_PARQUET')
         `;
         var insert_stmt = snowflake.createStatement({sqlText: insert_sql});
         insert_stmt.execute();
@@ -265,23 +270,27 @@ $$
 
     return 'Loaded new files: ' + new_files.join(', ');
 $$;
+```
 
 
 Weekly Task :
-
-CREATE OR REPLACE TASK NN_EXPL.CA_TRADE.W_UPDT_F_CA_AMZ_NES_COFF_ACC_DAILY_SALES_MFG
+```SQL
+CREATE OR REPLACE TASK NN_XXXX.XX_XXXX.W_UPDT_X_XX_XXX_XXX_XXXX_XXX_XXXXX_XXXX_XXX
 WAREHOUSE=NN_USERS_VW2
 SCHEDULE='USING CRON 00 13 * * THU UTC'
 COMMENT='call procedure to update api amazon canada daily sales (mfg) \ schedule explained : every thursday at 8AM EST (1PM UTC)'
 AS
-CALL NN_EXPL.CA_TRADE.UPDATE_F_CA_AMZ_NES_COFF_ACC_DAILY_SALES_MFG()
+CALL NN_XXXX.CA_XXXXX.UPDATE_X_XX_AMZ_NES_XXXX_XXX_XXXX_XXXX_MFG()
+```
 
 START THE TASK:
-ALTER TASK NN_EXPL.CA_TRADE.W_UPDT_F_CA_AMZ_NES_COFF_ACC_DAILY_SALES_MFG resume
-
+```SQL
+ALTER TASK NN_XXXX.XX_XXXX.W_UPDT_X_XX_XXX_XXX_XXXX_XXX_XXXXX_XXXX_XXX resume
+```
 
 finally creation of a sql script load into Power BI to monitor task failures : 
 
+```SQL
 SELECT 
     NAME,
     SCHEMA_NAME,
@@ -293,6 +302,7 @@ SELECT
     ERROR_MESSAGE,
     QUERY_ID
 FROM SNOWFLAKE.ACCOUNT_USAGE.TASK_HISTORY
-WHERE SCHEMA_NAME in ('USR_NNJOHNSELO','CA_COMMON','CA_CRM','CA_TRADE')
-  AND DATABASE_NAME = 'NN_EXPL'
+WHERE SCHEMA_NAME in ('USR_XXXXXXXXXX','XX_XXXXXX','XX_XXXX','XX_XXXXXXX')
+  AND DATABASE_NAME = 'NN_XXXX'
 ORDER BY SCHEDULED_TIME DESC
+```
